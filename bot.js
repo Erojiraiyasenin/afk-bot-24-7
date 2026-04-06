@@ -1,8 +1,8 @@
 const config = {
   mc: {
-    host: 'donut',
-    port: 25565,
-    username: 'YOUR_EMAIL@gmail.com',
+    host: 'donutsmp.net',
+    port: 19132,
+    username: 'avaneeshritesh4@gmail.com',
     auth: 'microsoft'
   },
   discord: {
