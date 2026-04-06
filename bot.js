@@ -1,3 +1,9 @@
+require('dotenv').config();
+
+const mineflayer = require('mineflayer');
+const { Client, GatewayIntentBits } = require('discord.js');
+
+// ===== CONFIG =====
 const config = {
   mc: {
     host: 'donutsmp.net',
@@ -6,7 +12,98 @@ const config = {
     auth: 'microsoft'
   },
   discord: {
-    token: 'MTQ5MDczNzY5NzIyMzA4MjIyNA.GzHCwA.LZdFuWLWfKqWTtzrcYrJRWDWvy1dC6fmDrux24',
-    channelId: '1490740862542675988'
+    token: process.env.DISCORD_TOKEN,
+    channelId: process.env.DISCORD_CHANNEL_ID
   }
 };
+
+let bot;
+
+// ===== MINECRAFT BOT =====
+function createBot() {
+  bot = mineflayer.createBot(config.mc);
+
+  bot.on('spawn', () => {
+    console.log('✅ Minecraft bot connected');
+
+    // AFK behavior
+    setInterval(() => {
+      if (!bot.entity) return;
+
+      bot.look(Math.random() * Math.PI * 2, 0);
+    }, 10000);
+  });
+
+  bot.on('end', () => {
+    console.log('❌ Disconnected. Reconnecting...');
+    setTimeout(createBot, 5000);
+  });
+
+  bot.on('error', (err) => console.log(err));
+}
+
+createBot();
+
+// ===== DISCORD BOT =====
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+client.on('ready', () => {
+  console.log(`🤖 Discord bot logged in as ${client.user.tag}`);
+});
+
+client.on('messageCreate', (message) => {
+  if (message.author.bot) return;
+  if (message.channel.id !== config.discord.channelId) return;
+
+  const args = message.content.split(' ');
+  const cmd = args[0].toLowerCase();
+
+  if (!bot || !bot.entity) {
+    message.reply('❌ Minecraft bot not connected');
+    return;
+  }
+
+  if (cmd === '!say') {
+    const text = args.slice(1).join(' ');
+    bot.chat(text);
+    message.reply(`Sent: ${text}`);
+  }
+
+  else if (cmd === '!jump') {
+    bot.setControlState('jump', true);
+    setTimeout(() => bot.setControlState('jump', false), 500);
+    message.reply('Jumped');
+  }
+
+  else if (cmd === '!forward') {
+    bot.setControlState('forward', true);
+    setTimeout(() => bot.setControlState('forward', false), 2000);
+    message.reply('Moving forward');
+  }
+
+  else if (cmd === '!look') {
+    bot.look(Math.random() * Math.PI * 2, 0);
+    message.reply('Looking around');
+  }
+
+  else if (cmd === '!stop') {
+    bot.clearControlStates();
+    message.reply('Stopped');
+  }
+
+  else if (cmd === '!status') {
+    message.reply(`Online: ${!!bot.entity}`);
+  }
+
+  else {
+    message.reply('Unknown command');
+  }
+});
+
+client.login(config.discord.token);
