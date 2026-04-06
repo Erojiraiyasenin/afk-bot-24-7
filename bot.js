@@ -1,14 +1,27 @@
 require('dotenv').config();
 
+const express = require('express');
 const mineflayer = require('mineflayer');
 const { Client, GatewayIntentBits } = require('discord.js');
+
+// ===== EXPRESS SERVER (for Render port) =====
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Bot is running');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🌐 Server running on port ${PORT}`);
+});
 
 // ===== CONFIG =====
 const config = {
   mc: {
-    host: 'donutsmp.net',
-    port: 19132,
-    username: 'avaneeshritesh4@gmail.com',
+    host: 'YOUR_SERVER_IP',
+    port: 25565,
+    username: 'YOUR_EMAIL@gmail.com',
     auth: 'microsoft'
   },
   discord: {
@@ -26,10 +39,8 @@ function createBot() {
   bot.on('spawn', () => {
     console.log('✅ Minecraft bot connected');
 
-    // AFK behavior
     setInterval(() => {
       if (!bot.entity) return;
-
       bot.look(Math.random() * Math.PI * 2, 0);
     }, 10000);
   });
@@ -39,7 +50,7 @@ function createBot() {
     setTimeout(createBot, 5000);
   });
 
-  bot.on('error', (err) => console.log(err));
+  bot.on('error', err => console.log(err));
 }
 
 createBot();
@@ -54,7 +65,7 @@ const client = new Client({
 });
 
 client.on('ready', () => {
-  console.log(`🤖 Discord bot logged in as ${client.user.tag}`);
+  console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
 client.on('messageCreate', (message) => {
