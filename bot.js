@@ -19,9 +19,9 @@ app.listen(PORT, () => {
 // ===== CONFIG =====
 const config = {
   mc: {
-    host: 'YOUR_SERVER_IP',
-    port: 25565,
-    username: 'YOUR_EMAIL@gmail.com',
+    host: 'donutsmp.net',
+    port: 19135,
+    username: 'avaneeshritesh4@gmail.com',
     auth: 'microsoft'
   },
   discord: {
